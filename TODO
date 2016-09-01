@@ -1,0 +1,13 @@
+. fix if goal == end of movement - OK
+. check scale factor - ok
+. robust again perturbations - to be check
+. learnign by trial&error - POWER!
+
+. rythmic dmp
+
+
+. library of movements
+. concat&superimposition of dmps
+
+. movement detection.
+. clustering of movements w/ updating of weights 
