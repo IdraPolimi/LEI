@@ -6,19 +6,19 @@
 a1 = 0.2;
 a2 = 0.1;
 
-loadRobotParam
-[clientID,vrep] = connectToRobot(IPADDRESS, PORT, WAIT_UNTIL_CONNECTED, DO_NOT_RECONNECT_ONCE_DISCONNECTED, TIME_OUT_IN_MSEC, COMM_THREAD_CYCLE_IN_MS);
-vrep.simxSynchronous(clientID,false);
-for jj = 1:3
-    [~, jointsHandle(jj)] = vrep.simxGetObjectHandle(clientID, cell2mat(jointsName(jj)), vrep.simx_opmode_oneshot_wait);
-    tempLimit = jointsLimits(strcmp({jointsLimits.name},cell2mat(jointsName(jj))));
-    upperLimits(jj) = tempLimit.upperLimit;
-    lowerLimits(jj) = tempLimit.lowerLimit;
-end
-if(~vrep.simxStartSimulation(clientID,vrep.simx_opmode_oneshot))
-    disp('Error in starting simulation');
-    return
-end
+%loadRobotParam
+%[clientID,vrep] = connectToRobot(IPADDRESS, PORT, WAIT_UNTIL_CONNECTED, DO_NOT_RECONNECT_ONCE_DISCONNECTED, TIME_OUT_IN_MSEC, COMM_THREAD_CYCLE_IN_MS);
+%vrep.simxSynchronous(clientID,false);
+%for jj = 1:3
+%    [~, jointsHandle(jj)] = vrep.simxGetObjectHandle(clientID, cell2mat(jointsName(jj)), vrep.simx_opmode_oneshot_wait);
+%    tempLimit = jointsLimits(strcmp({jointsLimits.name},cell2mat(jointsName(jj))));
+%    upperLimits(jj) = tempLimit.upperLimit;
+%    lowerLimits(jj) = tempLimit.lowerLimit;
+%end
+%if(~vrep.simxStartSimulation(clientID,vrep.simx_opmode_oneshot))
+%    disp('Error in starting simulation');
+%    return
+%end
 
 
 
@@ -33,7 +33,7 @@ hold on
 %set(gca,'YDir','reverse');
 set(gca,'XDir','reverse');
 %set(gca,'ZDir','reverse');
-axis([-1000 1500 -1000 1500 2200 2900])
+axis([-1000 1500 -1000 1500 1100 2900])
 
 %%%
 Pos1 = squeeze(PosJ(1,:,:));
@@ -118,27 +118,50 @@ for kk = 3:size(PosJ,1)
     %     hh(10)=plot3(xNonFilt,yNonFilt,zNonFilt,'g*');
     drawnow
     
-    neck = [x3D_(1),y3D_(1), z3D_(1)] - [x3D_(2), y3D_(2), z3D_(2)];
-    torso = [x3D_(9),y3D_(9), z3D_(9)] - [x3D_(2),y3D_(2), z3D_(2)];
+    %neck = [x3D_(1),y3D_(1), z3D_(1)] - [x3D_(2), y3D_(2), z3D_(2)];
+    %torso = [x3D_(9),y3D_(9), z3D_(9)] - [x3D_(2),y3D_(2), z3D_(2)];
     
     leftShoulder = [x3D_(2),y3D_(2), z3D_(2)] - [x3D_(3),y3D_(3), z3D_(3)];
     leftUpperArm = [x3D_(4),y3D_(4), z3D_(4)] - [x3D_(3),y3D_(3), z3D_(3)];
     leftLowerArm = [x3D_(5),y3D_(5), z3D_(5)] - [x3D_(4),y3D_(4), z3D_(4)];
     
-    rightShoulder = [x3D_(2),y3D_(2), z3D_(2)] - [x3D_(6),y3D_(6), z3D_(6)];
-    rightUpperArm = [x3D_(6),y3D_(6), z3D_(6)] - [x3D_(7),y3D_(7), z3D_(7)];
-    rightLowerArm = [x3D_(7),y3D_(7), z3D_(7)] - [x3D_(8),y3D_(8), z3D_(8)];
+    %rightShoulder = [x3D_(2),y3D_(2), z3D_(2)] - [x3D_(6),y3D_(6), z3D_(6)];
+    %rightUpperArm = [x3D_(6),y3D_(6), z3D_(6)] - [x3D_(7),y3D_(7), z3D_(7)];
+    %rightLowerArm = [x3D_(7),y3D_(7), z3D_(7)] - [x3D_(8),y3D_(8), z3D_(8)];
     
-    y(1,zz) = pi/2 - computeAngle(leftUpperArm, torso); %lsPitch
-    y(2,zz) = computeAngle(leftUpperArm, leftShoulder)-pi/2; %lsRoll
-    y(3,zz) = computeAngle(leftUpperArm, leftLowerArm); %leRoll
+    %%compute shoulderPitch and shoulderRoll
+    upperArmProj = leftUpperArm;
+    upperArmProj(3) = 0;
+    %y(1,zz) = computeAngle(leftUpperArm, upperArmProj); %shoulderPitch
+    upperArmProj(3) = leftUpperArm(3);
+    upperArmProj(1) = 0;
+    y(2,zz) = computeAngle(leftUpperArm, upperArmProj); %shoulderRoll
+    
+    %%compute elbowRoll
+    %y(3,zz) = computeAngle(leftUpperArm, leftLowerArm); %leRoll OK
+    
+    %%compute elbowYaw
+    normalToPlane = cross(leftUpperArm,leftLowerArm);
+    upperArmProJ = leftUpperArm;
+    upperArmProj(1) = 0;
+    normalToVerticalPlane = cross(leftUpperArm,upperArmProj);
+    %y(4,zz) = computeAngle(normalToPlane, normalToVerticalPlane); %elbow Yaw
+    
    
-    moveRobot(jointsHandle, y(:,zz), upperLimits, lowerLimits, vrep, clientID, 0.01);
+    y(2,zz)*180/pi
+    %%Old angle.
+    %y(1,zz) = pi/2 - computeAngle(leftUpperArm, torso); %lsPitch
+    %y(2,zz) = computeAngle(leftUpperArm, leftShoulder)-pi/2; %lsRoll  
+    %y(3,zz) = computeAngle(leftUpperArm, leftLowerArm); %leRoll OOK
+     
+    
+    
+    %moveRobot(jointsHandle, y(:,zz), upperLimits, lowerLimits, vrep, clientID, 0.01);
    
-    pause(0.01)
+    pause(0.4)
     
     zz = zz+1;
 end
 
-vrep.simxStopSimulation(clientID,vrep.simx_opmode_blocking);
-vrep.simxFinish(clientID);
+%vrep.simxStopSimulation(clientID,vrep.simx_opmode_blocking);
+%vrep.simxFinish(clientID);
