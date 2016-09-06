@@ -6,8 +6,8 @@ TIME_OUT_IN_MSEC                    = 3000;
 COMM_THREAD_CYCLE_IN_MS             = 5;
 
 
-%jointsName = [{'RShoulderPitch3'},{'RShoulderRoll3'},{'RElbowYaw3'},{'RElbowRoll3'}];
-jointsName = [{'LShoulderPitch3'},{'LShoulderRoll3'},{'LElbowRoll3'}];
+jointsName = [{'LShoulderPitch3'},{'LShoulderRoll3'},{'LElbowRoll3'}];%,{'LElbowYaw3'}];
+%jointsName = [{'LShoulderRoll3'}];
 
 jointsLimits(1).name = 'LShoulderPitch3';
 jointsLimits(1).upperLimit = degtorad(-1.195e+02+2.390e+02);

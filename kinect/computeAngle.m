@@ -8,5 +8,6 @@ function rad = computeAngle(x,y)
 %rad = atan2(norm(cross(x,y)), dot(x,y));
 nx = x/norm(x);
 ny = y/norm(y);
+%norm(nx - ny) / norm(nx + ny)
 %rad = 2 * atan(norm(x*norm(y) - norm(x)*y) / norm(x * norm(y) + norm(x) * y))
 rad = 2 * atan(norm(nx - ny) / norm(nx + ny));
